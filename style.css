@@ -1,0 +1,164 @@
+:root {
+    --Xclr: #d11a3f;
+    --Oclr: #37a1db;
+    --primary-clr: #161616;
+    --primary-clr-light: #4A4A4A;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #fff;
+    font-family: sans-serif;
+}
+
+.main {
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--primary-clr);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-block: 40px;
+}
+
+.home {
+    text-align: center;
+    transition: transform 250ms;
+}
+
+.game-Title {
+    font-size: 1.5rem;
+}
+
+.btn-Holder {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn {
+    width: 200px;
+    font-weight: bold;
+    border: none;
+    padding: 18px 20px;
+    border-radius: 5px;
+    background-color: var(--Xclr);
+    margin-top: 6px;
+}
+
+.btn:hover {
+    background-color: var(--Xclr);
+    cursor: pointer;
+}
+
+.playArea {
+    display: flex;
+    flex-direction: column;
+    transition: transform 250ms;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.card {
+    width: 100px;
+    height: 100px;
+    background-color: var(--primary-clr-light);
+    border-radius: 10px;
+    box-shadow: 2px 2px 1px 1px rgb(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card[data-is-Played="false"]:hover {
+    background-color: #363636;
+    cursor: pointer;
+}
+
+.middile,
+.buttom {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 10px;
+}
+
+.buttom {
+    margin-top: 10px;
+}
+
+.buttom button,
+.bottom_btns button {
+    background-color: var(--primary-clr-light);
+    border: none;
+    padding: 8px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 1px 1px rgb(0, 0, 0, 0.5);
+    font-size: 1rem;
+}
+
+.buttom .results:nth-child(1) {
+    background-color: var(--Xclr);
+}
+
+.buttom .results:nth-child(3) {
+    background-color: var(--Oclr);
+}
+
+.bottom_btns {
+    display: grid;
+    grid-template-columns: repeat(2, 100px);
+    gap: 10px;
+    width: 210px;
+    margin: 10px auto 0;
+}
+
+.bottom_btns button:hover {
+    background-color: #363636;
+    cursor: pointer;
+}
+
+.names,
+form[name="playersNames"] {
+    display: flex;
+    flex-direction: column;
+}
+
+form[name="playersNames"] label {
+    font-size: .8rem;
+    margin-top: 15px;
+}
+
+form[name="playersNames"] input {
+    font-size: .8rem;
+    padding: 5px;
+    padding-right: 0;
+    margin-top: 5px;
+    width: 200px;
+    background-color: var(--primary-clr-light);
+    border: none;
+    border-radius: 5px;
+}
+
+form[name="playersNames"] .btn {
+    font-size: .8rem;
+    padding: 5px;
+    margin-top: 15px;
+    background-color: var(--primary-clr-light);
+    border: none;
+    border-radius: 5px;
+    max-width: 80px;
+}
+
+form[name="playersNames"] .btn:hover {
+    background-color: #363636;
+}
+
+footer {
+    position: absolute;
+    bottom: 20px;
+}
