@@ -1,11 +1,3 @@
-interface PlayerSchema {
-  name: string;
-  wins: number;
-  path: number[];
-  type: string;
-  play: (i: number) => void;
-}
-
 /*
   XO: to manage the overall elements
   Home: to manage the type of game you want t oplay 'agiant player, agiant computer, online'
@@ -14,171 +6,254 @@ interface PlayerSchema {
   Player: the player where you can play by clicking on the boards 
   Computer: the player where the plays is automatically managed by the computer 
 */
+/// <reference path="./Players.ts" />
 
-abstract class XO {
-  protected homeELement: HTMLDivElement;
-  protected gameELement: HTMLDivElement;
+namespace App {
+  abstract class XO {
+    protected homeELement: HTMLDivElement;
+    protected gameELement: HTMLDivElement;
+    protected replayBtn: HTMLButtonElement;
+    protected xwinsElement: HTMLElement;
+    protected tiesElement: HTMLElement;
+    protected owinsElement: HTMLElement;
 
-  constructor() {
-    this.homeELement = <HTMLDivElement>document.getElementById("home")!;
-    this.gameELement = <HTMLDivElement>document.getElementById("game")!;
-  }
-}
-
-class Game extends XO {
-  private static _game: Game;
-  private exitBtn: HTMLButtonElement;
-  private cards: HTMLCollection;
-  private cardsPlayed: [
-    boolean,
-    boolean,
-    boolean,
-    boolean,
-    boolean,
-    boolean,
-    boolean,
-    boolean,
-    boolean
-  ] = [false, false, false, false, false, false, false, false, false];
-  private winingPath: number[][] = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-    [1, 5, 9],
-    [3, 5, 7],
-    [1, 4, 5],
-    [2, 5, 8],
-    [3, 6, 9],
-  ];
-
-  private playerTurn: number;
-
-  private constructor(private players: Player[]) {
-    super();
-    this.cards = <HTMLCollection>document.getElementsByClassName("card");
-    this.exitBtn = <HTMLButtonElement>document.getElementById("btn-exit");
-    this.playerTurn = 0;
-    this.configure();
-  }
-
-  static getGame(players?: Player[]): Game {
-    if (!this._game && players) this._game = new Game(players);
-    return this._game;
-  }
-
-  private configure(): void {
-    this.exitBtn.addEventListener("click", this.exitGame.bind(this));
-
-    for (let i = 0; i < this.cards.length; i++) {
-      this.cards[i].addEventListener("click", this.play.bind(this, i));
+    constructor() {
+      this.homeELement = <HTMLDivElement>document.getElementById("home")!;
+      this.gameELement = <HTMLDivElement>document.getElementById("game")!;
+      this.replayBtn = <HTMLButtonElement>(
+        document.getElementById("btn-replay")!
+      );
+      this.xwinsElement = <HTMLButtonElement>document.getElementById("Xwins")!;
+      this.tiesElement = <HTMLButtonElement>document.getElementById("ties")!;
+      this.owinsElement = <HTMLButtonElement>document.getElementById("Owins")!;
     }
   }
 
-  private play(cardIndex: number): void {
-    // get the dataset-is-played propriety that determened if the card was played
-    const isPlayed = this.cards[cardIndex].getAttribute("data-is-played");
+  class Game extends XO {
+    private static _game: Game;
+    private exitBtn: HTMLButtonElement;
+    private gameEnded: boolean = false;
+    private board: Board;
+    private playCount: number = 0;
+    private ties: number = 0;
+    private cardsPlayed: [
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      boolean
+    ] = [false, false, false, false, false, false, false, false, false];
+    private winingPath: number[][] = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [6, 3, 0],
+      [7, 4, 1],
+      [8, 5, 2],
+      [0, 4, 8],
+      [6, 4, 2],
+    ];
 
-    if (isPlayed && +isPlayed === 1) return;
-    // make ths card as played
-    this.cards[cardIndex].setAttribute("data-is-played", "1");
-    // added the played cart to the player path
-    this.players[this.playerTurn].play(cardIndex);
-    (
-      this.cards[cardIndex] as HTMLElement
-    ).style.backgroundImage = `url(../public/Images/${
-      this.players[this.playerTurn].name
-    }Image.png)`;
-    this.playerTurn = this.playerTurn === 1 ? 0 : 1;
+    private playerTurn: number;
+
+    private constructor(private players: Player[]) {
+      super();
+      this.board = new Board();
+      this.exitBtn = <HTMLButtonElement>document.getElementById("btn-exit");
+      this.playerTurn = 0;
+      this.configure();
+    }
+
+    static getGame(players?: Player[]): Game {
+      if (!this._game && players) this._game = new Game(players);
+      return this._game;
+    }
+
+    private configure(): void {
+      this.exitBtn.addEventListener("click", this.exitGame.bind(this));
+      this.replayBtn.addEventListener("click", this.rePlay.bind(this));
+      for (let i = 0; i < this.board.cards.length; i++) {
+        this.board.cards[i].addEventListener("click", this.play.bind(this, i));
+      }
+    }
+
+    displayState() {
+      this.xwinsElement.innerHTML = "X: " + this.players[0].wins.toString();
+      this.owinsElement.innerHTML = "O: " + this.players[1].wins.toString();
+      this.tiesElement.innerHTML = "Ties: " + this.ties.toString();
+    }
+
+    private play(cardIndex: number): void {
+      if (this.board.isPlayed(cardIndex) || this.gameEnded) return;
+      const player = this.players[this.playerTurn];
+      player.play(cardIndex);
+
+      this.board.cardPlayed(cardIndex, player.name);
+      const [weHaveWinner, path] = this.checkWinnner();
+      console.log([weHaveWinner, path]);
+      if (weHaveWinner && path) {
+        this.gameEnded = true;
+        player.wins++;
+        this.board.colorWiningPath(path, player);
+        this.displayState();
+      }
+
+      if (this.playCount === 8) {
+        this.ties += 1;
+        this.displayState();
+      }
+      this.playCount += 1;
+      this.playerTurn = this.playerTurn === 1 ? 0 : 1;
+    }
+
+    private rePlay() {
+      this.gameEnded = false;
+      this.reset();
+      this.board.clear();
+    }
+
+    exitGame() {
+      this.gameELement.style.display = "none";
+      this.homeELement.style.display = "block";
+      this.reset();
+      this.board.clear();
+    }
+
+    reset() {
+      this.players[0].path = [];
+      this.players[1].path = [];
+    }
+
+    private checkWinnner(): [boolean, number[] | 0] {
+      const player = this.players[this.playerTurn];
+      if (player.path.length < 3) return [false, 0];
+      let checkCount = 0;
+      for (var i = 0; i < this.winingPath.length; i++) {
+        for (let j = 0; j < this.winingPath[i].length; j++) {
+          for (let p = 0; p < player.path.length; p++) {
+            if (player.path[p] === this.winingPath[i][j]) {
+              checkCount++;
+            }
+          }
+        }
+        if (checkCount < 3) {
+          checkCount = 0;
+        } else if (checkCount === 3) {
+          break;
+        }
+      }
+      return [checkCount >= 3, this.winingPath[i]];
+    }
   }
 
-  private rePlay() {
-    this.players = this.players.map((player) => {
-      return new Player(player.name, player.wins, []);
-    });
+  class Home extends XO {
+    private game: Game = Game.getGame();
+    private playWithFirendBtn: HTMLButtonElement;
+    private playWithComputerBtn: HTMLButtonElement;
+    private playOnlineBtn: HTMLButtonElement;
+
+    constructor() {
+      super();
+
+      this.playWithFirendBtn = <HTMLButtonElement>(
+        document.getElementById("play-btn-firend")!
+      );
+      this.playWithComputerBtn = <HTMLButtonElement>(
+        document.getElementById("play-btn-computer")!
+      );
+      this.playOnlineBtn = <HTMLButtonElement>(
+        document.getElementById("play-btn-online")!
+      );
+
+      this.configure();
+    }
+
+    private configure() {
+      // displaying the home page 'so to say'
+      this.gameELement.style.display = "none";
+      // adding the events listeners to the buttons
+      this.playWithFirendBtn.addEventListener(
+        "click",
+        this.playWithFiend.bind(this)
+      );
+      this.playWithComputerBtn.addEventListener(
+        "click",
+        this.playWithComputer.bind(this)
+      );
+      this.playOnlineBtn.addEventListener("click", this.playOnline.bind(this));
+    }
+
+    private startGame(players: Player[]): void {
+      this.game = Game.getGame(players);
+      this.gameELement.style.display = "block";
+      this.homeELement.style.display = "none";
+    }
+
+    private playWithFiend() {
+      const players = [new Player("X", 0, []), new Player("O", 0, [])];
+      this.startGame(players);
+    }
+
+    private playWithComputer() {
+      const players = [new Player("X", 0, []), new Computer("O", 0, [])];
+      this.startGame(players);
+    }
+
+    private playOnline() {}
   }
 
-  exitGame() {
-    this.gameELement.style.display = "none";
-    this.homeELement.style.display = "block";
+  class Board {
+    cards: HTMLCollection;
+
+    constructor() {
+      this.cards = <HTMLCollection>document.getElementsByClassName("card")!;
+    }
+
+    configure(play: Function) {
+      for (let i = 0; i < this.cards.length; i++) {
+        this.cards[i].addEventListener("click", play.bind(this, i));
+      }
+    }
+
+    cardPlayed(cardIndex: number, playerName: string) {
+      this.cards[cardIndex].setAttribute("data-is-played", "1");
+      (
+        this.cards[cardIndex] as HTMLElement
+      ).style.backgroundImage = `url(../public/Images/${playerName}Image.png)`;
+    }
+
+    isPlayed(cardIndex: number): boolean {
+      return (
+        +(this.cards[cardIndex] as HTMLElement).getAttribute(
+          "data-is-played"
+        )! === 1
+      );
+    }
+
+    clear() {
+      for (var i = 0; i < this.cards.length; i++) {
+        (this.cards.item(i)! as HTMLElement).style.backgroundImage = "";
+        (this.cards.item(i)! as HTMLElement).setAttribute(
+          "data-is-played",
+          "0"
+        );
+        (this.cards.item(i)! as HTMLElement).style.backgroundColor =
+          "var(--primary-clr-light)";
+      }
+    }
+
+    colorWiningPath(path: number[], player: Player) {
+      for (let i = 0; i < path.length; i++) {
+        (
+          this.cards.item(path[i]) as HTMLElement
+        ).style.backgroundColor = `var(--${player.name}clr)`;
+      }
+    }
   }
+
+  new Home();
 }
-
-class Home extends XO {
-  private game: Game = Game.getGame();
-  private playWithFirendBtn: HTMLButtonElement;
-  private playWithComputerBtn: HTMLButtonElement;
-  private playOnlineBtn: HTMLButtonElement;
-
-  constructor() {
-    super();
-
-    this.playWithFirendBtn = <HTMLButtonElement>(
-      document.getElementById("play-btn-firend")!
-    );
-    this.playWithComputerBtn = <HTMLButtonElement>(
-      document.getElementById("play-btn-computer")!
-    );
-    this.playOnlineBtn = <HTMLButtonElement>(
-      document.getElementById("play-btn-online")!
-    );
-
-    this.configure();
-  }
-
-  private configure() {
-    // displaying the home page 'so to say'
-    this.gameELement.style.display = "none";
-    // adding the events listeners to the buttons
-    this.playWithFirendBtn.addEventListener(
-      "click",
-      this.playWithFiend.bind(this)
-    );
-    this.playWithComputerBtn.addEventListener(
-      "click",
-      this.playWithComputer.bind(this)
-    );
-    this.playOnlineBtn.addEventListener("click", this.playOnline.bind(this));
-  }
-
-  private startGame(players: Player[]): void {
-    this.game = Game.getGame(players);
-    this.gameELement.style.display = "block";
-    this.homeELement.style.display = "none";
-  }
-
-  private playWithFiend() {
-    const players = [new Player("X", 0, []), new Player("O", 0, [])];
-    this.startGame(players);
-  }
-
-  private playWithComputer() {
-    const players = [new Player("X", 0, []), new Computer("O", 0, [])];
-    this.startGame(players);
-  }
-
-  private playOnline() {}
-}
-
-class Player implements PlayerSchema {
-  type: string = "player";
-
-  constructor(
-    public name: string,
-    public wins: number,
-    public path: number[]
-  ) {}
-
-  play(playedIndex: number): void {
-    this.path.push(playedIndex);
-  }
-}
-
-class Computer extends Player implements PlayerSchema {
-  type: string = "computer";
-
-  constructor(name: string, wins: number, path: number[]) {
-    super(name, wins, path);
-  }
-}
-
-const home = new Home();
