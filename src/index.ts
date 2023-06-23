@@ -36,17 +36,7 @@ namespace App {
     private board: Board;
     private playCount: number = 0;
     private ties: number = 0;
-    private cardsPlayed: [
-      boolean,
-      boolean,
-      boolean,
-      boolean,
-      boolean,
-      boolean,
-      boolean,
-      boolean,
-      boolean
-    ] = [false, false, false, false, false, false, false, false, false];
+    private posiblePlayes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     private winingPath: number[][] = [
       [0, 1, 2],
       [3, 4, 5],
@@ -89,31 +79,34 @@ namespace App {
 
     private play(cardIndex: number): void {
       if (this.board.isPlayed(cardIndex) || this.gameEnded) return;
+
+      this.posiblePlayes = this.posiblePlayes.filter((p) => p !== cardIndex);
       const player = this.players[this.playerTurn];
-      player.play(cardIndex);
+      if (this.players[this.playerTurn].type === "player")
+        player.play(cardIndex);
 
       this.board.cardPlayed(cardIndex, player.name);
       const [weHaveWinner, path] = this.checkWinnner();
-      console.log([weHaveWinner, path]);
       if (weHaveWinner && path) {
         this.gameEnded = true;
         player.wins++;
         this.board.colorWiningPath(path, player);
         this.displayState();
-      }
-
-      if (this.playCount === 8) {
+      } else if (this.playCount === 8) {
         this.ties += 1;
         this.displayState();
       }
       this.playCount += 1;
       this.playerTurn = this.playerTurn === 1 ? 0 : 1;
+      console.log(this.players[this.playerTurn]);
+      this.computerPlay();
     }
 
     private rePlay() {
       this.gameEnded = false;
       this.reset();
       this.board.clear();
+      this.computerPlay();
     }
 
     exitGame() {
@@ -121,11 +114,29 @@ namespace App {
       this.homeELement.style.display = "block";
       this.reset();
       this.board.clear();
+      this.players[0].wins = 0;
+      this.players[1].wins = 0;
+      this.ties = 0;
+      this.displayState();
     }
 
     reset() {
       this.players[0].path = [];
       this.players[1].path = [];
+      this.playCount = 0;
+      this.posiblePlayes = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    }
+
+    computerPlay(): void {
+      if (this.players[this.playerTurn].type === "computer") {
+        const index = this.players[this.playerTurn].play(
+          -1,
+          this.posiblePlayes,
+          this.players[0].path,
+          this.winingPath
+        );
+        if (index != undefined) this.play(index);
+      }
     }
 
     private checkWinnner(): [boolean, number[] | 0] {
