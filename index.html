@@ -1,70 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <link
+      rel="shortcut icon"
+      href="./public/images/logo.png"
+      type="image/x-icon"
+    />
+    <title>Tic Tac Toe</title>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
-    <link rel="shortcut icon" href="./public/images/logo.png" type="image/x-icon">
-    <script  src="dist/index.js" defer ></script>
-
-    <title>TIc Tac Toe</title>
-</head>
-
-<body>
+  <body>
     <div class="main">
-        <div id="home" class="home">
-            <h1 class="game-Title">X/O</h1>
-            <div class="btn-Holder">
-                <button id="play-btn-firend" class="btn">Play With Friend</button>
-                <button id="play-btn-computer" class="btn">Play With CPU</button>
-                <button id="play-btn-online" class="btn">Play OnLine</button>
-            </div>
+      <div id="home" class="home">
+        <h1 class="game-Title">X/O</h1>
+        <div class="btn-Holder">
+          <button id="play-btn-firend" class="btn">Play With Friend</button>
+          <button id="play-btn-computer" class="btn">Play With CPU</button>
+          <button id="play-btn-online" class="btn">Play OnLine</button>
         </div>
-        <div style="display: none;" class="names">
-            <h1 class="game-Title">X/O</h1>
-            <form name="playersNames">
-                <label for="1stplayer">1st Player Name(X by Defult):</label>
-                <input type="text" maxlength="10" id="1stplayer" name="playerName">
-                <label for="2ndplayer">2nd Player Name(O by Defult):</label>
-                <input type="text" maxlength="10" id="2ndplayer" name="playerName">
-                <button type="button" class="btn" onclick="startTheGame()">Start</button>
-            </form>
+      </div>
+      <div style="display: none" class="names">
+        <h1 class="game-Title">X/O</h1>
+        <form name="playersNames">
+          <label for="1stplayer">1st Player Name(X by Defult):</label>
+          <input type="text" maxlength="10" id="1stplayer" name="playerName" />
+          <label for="2ndplayer">2nd Player Name(O by Defult):</label>
+          <input type="text" maxlength="10" id="2ndplayer" name="playerName" />
+          <button type="button" class="btn" onclick="startTheGame()">
+            Start
+          </button>
+        </form>
+      </div>
+      <div id="game" class="game">
+        <div class="top">
+          <h1 class="game-Title">XO</h1>
+          <h1 class="game-Title playerTurn">XTurn</h1>
         </div>
-        <div id="game" class="game">
-            <div class="top">
-                <h1 class="game-Title">XO</h1>
-                <h1 class="game-Title playerTurn">XTurn</h1>
-            </div>
-            <div class="middile">
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-                <div data-is-Played="0"  class="card"></div>
-            </div>
-            <div class="buttom">
-                <button id="Xwins" class="results">X: 0</button>
-                <button id="ties" class="results">Ties: 0</button>
-                <button id="Owins" class="results">O: 0</button>
-            </div>
-            <div class="bottom_btns">
-                <button id="btn-replay" >replay</button>
-                <button id="btn-exit" >Exit</button>
-            </div>
+        <div class="middile">
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
+          <div data-is-Played="0" class="card"></div>
         </div>
-        <footer>
-            <p class="MadeBy">Copyright &copy; by <a target="_blank" href="http://ousta-2f563.web.app/">Oussama.Tailba</a></p>
-        </footer>
+        <div class="buttom">
+          <button id="Xwins" class="results">X: 0</button>
+          <button id="ties" class="results">Ties: 0</button>
+          <button id="Owins" class="results">O: 0</button>
+        </div>
+        <div class="bottom_btns">
+          <button id="btn-replay">replay</button>
+          <button id="btn-exit">Exit</button>
+        </div>
+      </div>
+      <footer>
+        <p class="MadeBy">
+          Copyright &copy; by
+          <a target="_blank" href="http://ousta-2f563.web.app/"
+            >Oussama.Tailba</a
+          >
+        </p>
+      </footer>
     </div>
-  
-    </bod y>
-
+    <script type="module" src="dist/index.js"></script>
+    <script type="module" src="dist/socketConnection.js"></script>
+  </body>
 </html>
-  
- 
