@@ -1,0 +1,14 @@
+{
+  "name": "xo-with-typescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "startServer": "tsc -w & npm run start -prefix ",
+    "startClient": "tsc -w & npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
